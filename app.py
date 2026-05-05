@@ -73,4 +73,39 @@ if not df.empty:
     if horas_hoy == 0:
         st.info(f"Aún no hay horas imputadas para {emp_progreso} en este día.")
     elif horas_hoy <= 2:
-        st.warning(f"**{horas_hoy}h imputadas (Q1 -
+        st.warning(f"**{horas_hoy}h imputadas (Q1 - 25%).** Queda jornada por delante.")
+    elif horas_hoy <= 4:
+        st.warning(f"**{horas_hoy}h imputadas (Q2 - 50%).** Mitad de la jornada registrada.")
+    elif horas_hoy <= 6:
+        st.info(f"**{horas_hoy}h imputadas (Q3 - 75%).** Buen progreso, considerando reuniones.")
+    elif horas_hoy < 8:
+        st.success(f"**{horas_hoy}h imputadas.** ¡Casi el 100%!")
+    else:
+        st.success(f"🌟 **¡Objetivo Diario Completado! ({horas_hoy}h)**")
+        
+    st.divider()
+
+    # --- NUEVA SECCIÓN: GRÁFICO MENSUAL ---
+    st.subheader("📅 Evolución Mensual")
+    # Extraemos el Año-Mes de la fecha (Ej: "2026-04")
+    df['Mes'] = df['Fecha'].dt.to_period('M').astype(str)
+    
+    # Gráfico de barras apiladas por meses
+    fig_mes = px.bar(df, x='Mes', y='Horas', color='Empresa', title="Suma de Horas por Mes y Empresa", barmode='stack')
+    st.plotly_chart(fig_mes, use_container_width=True)
+    
+    st.divider()
+
+    # --- DASHBOARD GENERAL ---
+    st.subheader("🏢 Distribución Global")
+    fig_pie = px.pie(df, values='Horas', names='Empresa', title="Peso de las Empresas (Total Histórico)")
+    st.plotly_chart(fig_pie, use_container_width=True)
+    
+    c1, c2 = st.columns(2)
+    with c1:
+        st.plotly_chart(px.bar(df, x='Empleado', y='Horas', color='Empresa', title="Dedicación por Empleado"), use_container_width=True)
+    with c2:
+        st.plotly_chart(px.bar(df, x='Empleado', y='Horas', color='Area', title="Tareas por Empleado"), use_container_width=True)
+
+else:
+    st.info("Esperando datos de Google Sheets...")
