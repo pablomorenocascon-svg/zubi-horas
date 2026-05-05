@@ -8,7 +8,7 @@ st.set_page_config(page_title="Zubi App", layout="wide")
 st.title("📊 Zubi People - Imputación de Horas")
 
 # Forzamos la ruta exacta dentro del cerebro de Google Colab
-ARCHIVO = "/content/datos_temporales.csv"
+ARCHIVO = "datos_temporales.csv"
 
 # Bloque de seguridad: si no existe, lo crea al instante
 if not os.path.exists(ARCHIVO):
