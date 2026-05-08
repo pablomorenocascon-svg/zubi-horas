@@ -178,17 +178,30 @@ try:
         st.divider()
 
         # =========================================================
-        # JERARQUÍA EMPRESA -> ÁREA -> EMPLEADO (SUNBURST)
+        # HORAS POR EMPRESA DESGLOSADAS POR ÁREA (BARRAS HORIZONTALES)
         # =========================================================
-        st.subheader("🌞 Jerarquía: Empresa → Área → Empleado")
-        st.caption("Haz clic en una empresa para ver el desglose por área y empleado.")
-        fig_sun = px.sunburst(
-            df_filt,
-            path=['Empresa', 'Area', 'Empleado'],
-            values='Horas'
+        st.subheader("🏢 Horas por Empresa desglosadas por Área")
+        st.caption("Cada barra es una empresa, los colores indican qué área se ha trabajado.")
+
+        # Agrupamos y ordenamos las empresas por total de horas
+        # (ascending=True porque en barras horizontales la mayor queda arriba)
+        df_emp_area = df_filt.groupby(['Empresa', 'Area'])['Horas'].sum().reset_index()
+        orden_empresas = (
+            df_emp_area.groupby('Empresa')['Horas'].sum()
+            .sort_values(ascending=True).index.tolist()
         )
-        fig_sun.update_layout(margin=dict(t=10, l=10, r=10, b=10))
-        st.plotly_chart(fig_sun, use_container_width=True)
+
+        fig_emp_area = px.bar(
+            df_emp_area,
+            x='Horas', y='Empresa', color='Area',
+            orientation='h',
+            barmode='stack',
+            category_orders={'Empresa': orden_empresas},
+            text='Horas'
+        )
+        fig_emp_area.update_traces(texttemplate='%{text:.1f}', textposition='inside')
+        fig_emp_area.update_layout(height=500)
+        st.plotly_chart(fig_emp_area, use_container_width=True)
 
         st.divider()
 
@@ -264,3 +277,4 @@ try:
         st.info("La base de datos está vacía. Guarda tu primera imputación arriba para ver los gráficos.")
 except Exception as e:
     st.warning(f"Error al cargar el dashboard: {e}")
+
